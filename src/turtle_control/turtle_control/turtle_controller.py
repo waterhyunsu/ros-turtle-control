@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
-
 from geometry_msgs.msg import Twist
+from std_msgs.msg import String
 
 
 class TurtleController(Node):
@@ -15,18 +15,29 @@ class TurtleController(Node):
             10
         )
 
-        self.timer = self.create_timer(
-            0.5,
-            self.timer_callback
+        self.subscription = self.create_subscription(
+            String,
+            '/turtle_command',
+            self.command_callback,
+            10
         )
 
-    def timer_callback(self):
-        msg = Twist()
+    def command_callback(self, msg):
+        twist = Twist()
 
-        msg.linear.x = 2.0
-        msg.angular.z = 2.0
+        if msg.data == 'up':
+            twist.linear.x = 2.0
 
-        self.publisher.publish(msg)
+        elif msg.data == 'down':
+            twist.linear.x = -2.0
+
+        elif msg.data == 'left':
+            twist.angular.z = 2.0
+
+        elif msg.data == 'right':
+            twist.angular.z = -2.0
+
+        self.publisher.publish(twist)
 
 
 def main(args=None):
