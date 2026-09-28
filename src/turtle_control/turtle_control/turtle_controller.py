@@ -4,6 +4,7 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 from std_srvs.srv import Empty
+from turtlesim.msg import Pose
 
 
 class TurtleController(Node):
@@ -29,6 +30,17 @@ class TurtleController(Node):
             '/reset'
         )
 
+        self.x = 0.0
+        self.y = 0.0
+        self.theta = 0.0
+
+        self.pose_subscription = self.create_subscription(
+            Pose,
+            '/turtle1/pose',
+            self.pose_callback,
+            10
+        )
+
     def command_callback(self, msg):
         if msg.data == 'reset':
             self.reset_turtle()
@@ -49,6 +61,11 @@ class TurtleController(Node):
             twist.angular.z = -2.0
 
         self.publisher.publish(twist)
+
+    def pose_callback(self, msg):
+        self.x = msg.x
+        self.y = msg.y
+        self.theta = msg.theta
 
     def reset_turtle(self):
         if not self.reset_client.wait_for_service(timeout_sec=1.0):
