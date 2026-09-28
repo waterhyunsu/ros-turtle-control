@@ -45,6 +45,7 @@ class MainWindow(QWidget):
         down_button = QPushButton('↓')
         left_button = QPushButton('←')
         right_button = QPushButton('→')
+        reset_button = QPushButton('RESET')
 
         up_button.clicked.connect(
             lambda: self.ros_node.send_command('up')
@@ -62,10 +63,15 @@ class MainWindow(QWidget):
             lambda: self.ros_node.send_command('right')
         )
 
+        reset_button.clicked.connect(
+            lambda: self.ros_node.send_command('reset')
+        )
+
         layout.addWidget(up_button, 0, 1)
         layout.addWidget(left_button, 1, 0)
         layout.addWidget(right_button, 1, 2)
         layout.addWidget(down_button, 2, 1)
+        layout.addWidget(reset_button, 3, 1)
 
         self.setLayout(layout)
 

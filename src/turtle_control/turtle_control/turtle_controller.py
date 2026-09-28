@@ -1,7 +1,9 @@
 import rclpy
 from rclpy.node import Node
+
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
+from std_srvs.srv import Empty
 
 
 class TurtleController(Node):
@@ -22,7 +24,16 @@ class TurtleController(Node):
             10
         )
 
+        self.reset_client = self.create_client(
+            Empty,
+            '/reset'
+        )
+
     def command_callback(self, msg):
+        if msg.data == 'reset':
+            self.reset_turtle()
+            return
+
         twist = Twist()
 
         if msg.data == 'up':
@@ -38,6 +49,14 @@ class TurtleController(Node):
             twist.angular.z = -2.0
 
         self.publisher.publish(twist)
+
+    def reset_turtle(self):
+        if not self.reset_client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().warn('/reset service is not available')
+            return
+
+        request = Empty.Request()
+        self.reset_client.call_async(request)
 
 
 def main(args=None):
